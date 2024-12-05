@@ -57,6 +57,7 @@
         </ul>
     </div>
     <script>
+        // Function to add a task
         function addTask() {
             // Get the input field and value
             var taskInput = document.getElementById("task");
@@ -76,9 +77,63 @@
             var ul = document.getElementById("task-list");
             ul.appendChild(li);
 
+            // Save the task to localStorage
+            saveTasks();
+
             // Clear the input field
             taskInput.value = "";
         }
+
+        // Function to save tasks to localStorage
+        function saveTasks() {
+            var taskList = [];
+            var tasks = document.getElementById("task-list").getElementsByTagName("li");
+
+            // Loop through the task list and store each task's text and checkbox state in the array
+            for (var i = 0; i < tasks.length; i++) {
+                var taskText = tasks[i].textContent.trim();
+                var isChecked = tasks[i].getElementsByTagName("input")[0].checked;
+                
+                // Only add the task if it is not checked
+                if (!isChecked) {
+                    taskList.push({ text: taskText, checked: false });
+                }
+            }
+
+            // Save the array to localStorage
+            localStorage.setItem("tasks", JSON.stringify(taskList));
+        }
+
+        // Function to load tasks from localStorage
+        function loadTasks() {
+            var taskList = JSON.parse(localStorage.getItem("tasks"));
+
+            if (taskList) {
+                var ul = document.getElementById("task-list");
+                taskList.forEach(function(task) {
+                    var li = document.createElement("li");
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.checked = task.checked;  // Set checkbox state
+
+                    li.appendChild(checkbox);
+                    var textNode = document.createTextNode(task.text);
+                    li.appendChild(textNode);
+                    ul.appendChild(li);
+
+                    // Add event listener to remove task when checked
+                    checkbox.addEventListener("change", function() {
+                        if (checkbox.checked) {
+                            li.style.display = "none";  // Hide the task visually
+                            saveTasks();  // Re-save tasks to localStorage
+                        }
+                    });
+                });
+            }
+        }
+
+        // Load tasks when the page loads
+        window.onload = loadTasks;
     </script>
 </body>
 </html>
